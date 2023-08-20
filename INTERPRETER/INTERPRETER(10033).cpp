@@ -34,7 +34,7 @@ class Solution
 
     int ct;
 
-    string RAM[N] = { "000" };
+    int RAM[N] = { 0 };
     int regs[10] = { 0 };
     int ip = 0;
     int ret = 0;
@@ -51,17 +51,25 @@ class Solution
         while(true)
         {
             if(!getline(cin, s) || s.size() == 0) break;
-            this->RAM[ip++] = s;
+            this->RAM[ip++] = stoi(s);
         }
     }
 
     void process()
     {
-        while(this->RAM[this->ip] != "100")
+        while(this->RAM[this->ip] != 100)
         {
-            string cmd = this->RAM[this->ip++];
-            char c = cmd[0]; int d = cmd[1] - '0', n = cmd[2] - '0';
-            if(c = '2') this->regs[d] = n;
+            int cmd = this->RAM[this->ip++];
+            int c = cmd / 100, d = cmd / 10 - 10 * c, n = cmd - 100 * c - 10 * d;
+            if(c == 2) this->regs[d] = n;
+            else if(c == 3) {this->regs[d] += n; this->regs[d] %= 1000; }
+            else if(c == 4) {this->regs[d] *= n; this->regs[d] %= 1000; }
+            else if(c == 5) this->regs[d] = this->regs[n];
+            else if(c == 6) {this->regs[d] += this->regs[n]; this->regs[d] %= 1000; }
+            else if(c == 7) {this->regs[d] *= this->regs[n]; this->regs[d] %= 1000; }
+            else if(c == 8) this->regs[d] = this->RAM[this->regs[n]];
+            else if(c == 9) this->RAM[this->regs[n]] = this->regs[d];
+            else if(c == 0 && this->regs[n] != 0) this->ip = this->regs[d];
 
             this->ret++;
         }
