@@ -14,92 +14,150 @@ using namespace std;
 
 #define N 10
 
-unordered_map<int, int> overleaps;
-string months[14] = { "Alligator", "Bog", "Crayfish", "Damp", "Eel", "Fen", "Gumbo", "Hurricane",
-    "Inundation", "Jaguar", "Kudzu", "Lake", "Marsh", "Newt" };
-unordered_map<string, int> days;
-
-int countLeaps(int year, int month)
-{
-    int ret = 0;
-    int div = year / 2820;
-    ITER_FIX(i, 0, year % 2820) if(((683 * i) % 2820) < 683) ret++;
-    ret += div * 683;
-
-    return ret;
-}
-
-int count_day_number(int date_day, int date_month, int date_year)
-{
-    if(date_year > 2390000) return -1;
-
-    int ret = -1;
-    if(date_month < 14)
-    {
-        string dayString = to_string(date_day) + months[date_month];
-        if(days.find(dayString) != days.end()) ret = days.find(dayString)->second;
-    }
-    else if(overleaps.find((683 * date_year) % 2820) != overleaps.end()) if(overleaps.find(((683 * date_year) % 2820))->second == date_day && date_month == 14) ret = 366;
-
-    return ret;
-}
 
 int main(int argc, char* argv[])
 {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-
-    int order = 0;
-    ITER_FIX(i, 0, 2820) if(((683 * i) % 2820) < 683) overleaps.insert({ ((683 * i) % 2820), order++ });
-
-    int day = 0, month = 0, ret = 1;
-    ITER_FIX(i, 0, 365)
+    string months[15] = { "Alligator", "Bog", "Crayfish", "Damp", "Eel", "Fen", "Gumbo", "Hurricane",
+                    "Inundation", "Jaguar", "Kudzu", "Lake", "Marsh", "Newt", "Overflow" };
+    unordered_map<string, int> days; // days in year
+    int d = 0, m = 0, count = 1;
+    for(int i = 0; i < 365; i++)
     {
-        if(day >= 28) day = 0;
-        if(month >= 13) month = 0;
-        string dayMonth = to_string(day) + months[month];
-        days.insert({ dayMonth, ret });
+        if(d >= 28) d = 0;
+        if(m >= 13) m = 0;
+        string dayString = to_string(d++) + months[m++];
 
-        ret++;
-        day++;
-        month++;
+        days.insert({ dayString, count++ });
     }
     days.insert({ "0Newt", 365 });
+
+    unordered_map<int, int> overflows; // day number in overlow
+    unordered_map<int, int> overleaps; // count of overleaps
+    int day = 0;
+    for(int i = 0; i < 2820; i++)
+    {
+        overleaps.insert({ i, overflows.size() });
+
+        if(((683 * i) % 2820) < 683)
+            overflows.insert({ i, day++ });
+    }
 
 
     while(!cin.eof())
     {
         string ret = "eh?";
-        string sfrom, sto;
-        cin >> sfrom >> sto;
 
-        stringstream fromss(sfrom), toss(sto);
-        string f[3], t[3];
-        ITER_FIX(i, 0, 3)
+        string fromIn;
+        string toIn;
+        cin >> fromIn >> toIn;
+
+        string from[3] = { "" };
+        string to[3] = { "" };
+
+        int countFrom = 0;
+        for(char ch: fromIn)
         {
-            getline(fromss, f[i], '-');
-            getline(toss, t[i], '-');
+            if(ch == '-')
+            {
+                countFrom++;
+            }
         }
-        STEROID_NUMBER from[3] = { stol(f[0]), f[1][0] - 'a', stol(f[2]) };
-        STEROID_NUMBER to[3] = { stol(t[0]), t[1][0] - 'a', stol(t[2]) };
-
-        if(from[1] < 0) from[1] += 32;
-        if(to[1] < 0) to[1] += 32;
-
-        int day_number_from = count_day_number(from[0], from[1], from[2]);
-        int day_number_to = count_day_number(to[0], to[1], to[2]);
-
-        if(day_number_from >= 0 && day_number_to >= 0)
+        int countTo = 0;
+        for(char ch: toIn)
         {
-            STEROID_NUMBER lret = (day_number_to + 365 * to[2] + countLeaps(to[2], to[1])) - 
-                                 (day_number_from + 365 * from[2] + countLeaps(from[2], from[1]));
-            if(lret < 0) lret = -lret;
-
-            ret = to_string(lret);
+            if(ch == '-')
+            {
+                countTo++;
+            }
         }
 
-        cout << ret << "\n";
+        int i = 0;
+        for(char ch: fromIn)
+        {
+            if(ch == '-')
+            {
+                i++;
+                continue;
+            }
+            from[i] += ch;
+        }
+
+        i = 0;
+        for(char ch: toIn)
+        {
+            if(ch == '-')
+            {
+                i++;
+                continue;
+            }
+            to[i] += ch;
+        }
+
+        int fromInt[3] = { 0 }, toInt[3] = { 0 };
+        fromInt[0] = stoi(from[0]);
+        fromInt[1] = from[1][0] - 'a';
+        fromInt[2] = stoi(from[2]);
+        if(fromInt[1] < 0) fromInt[1] += 32;
+
+        toInt[0] = stoi(to[0]);
+        toInt[1] = to[1][0] - 'a';
+        toInt[2] = stoi(to[2]);
+        if(toInt[1] < 0) toInt[1] += 32;
+        if(fromInt[1] > 14 || toInt[1] > 14)
+        {
+            cout << ret << "\n";
+            continue;
+        }
+
+        int year = -1;
+        if(days.find(from[0] + months[fromInt[1]]) == days.end())
+        {
+            if(overflows.find(fromInt[2] % 2820) == overflows.end() ||
+                fromInt[0] != overflows.find(fromInt[2] % 2820)->second)
+            {
+                cout << ret << "\n";
+                continue;
+            }
+            else
+            {
+                year = 366;
+            }
+        }
+        else
+        {
+            year = days.find(from[0] + months[fromInt[1]])->second;
+        }
+        int div = fromInt[2] / 2820;
+        int current = overleaps.find(fromInt[2] % 2820)->second;
+        long long fromDateDays = year + 365 * fromInt[2] + div * 683 + current;
+
+        year = -1;
+        if(days.find(to[0] + months[toInt[1]]) == days.end())
+        {
+            if(overflows.find(toInt[2] % 2820) == overflows.end() ||
+                toInt[0] != overflows.find(toInt[2] % 2820)->second)
+            {
+                cout << ret << "\n";
+                continue;
+            }
+            else
+            {
+                year = 366;
+            }
+        }
+        else
+        {
+            year = days.find(to[0] + months[toInt[1]])->second;
+        }
+        div = toInt[2] / 2820;
+        current = overleaps.find(toInt[2] % 2820)->second;
+        long long toDateDays = year + 365 * toInt[2] + div * 683 + current;
+
+
+        cout << abs(fromDateDays - toDateDays) << "\n";
     }
 
     return 0;
