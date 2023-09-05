@@ -12,28 +12,20 @@ using namespace std;
 #define ITER_CONT(var, cont) for(auto& var: cont)
 #define ITER_CONT_IT(var, cont, comm) for(auto var = cont.begin(); var != cont.end(); comm)
 
-const int N = 3e4 + 1;
+const int N = 3e5 + 1;
 
 class Solution
 {
     static int table[N];
-    public: static void initTable()
+    static void initTable()
     {
         int coins[5] = { 1, 5, 10, 25, 50 };
         Solution::table[0] = 1;
-        ITER_FIX(i, 1, N)
+        ITER_FIX(i, 0, 5)
         {
-            ITER_FIX(j, 0, 5)
-            {
-                int c = coins[j];
-                if(i >= c)
-                {
-                    int d = i / c;
-                    int m = i % c;
-                    Solution::table[i] += d * Solution::table[m];
-                }
-            }
-            Solution::table[i] -= (i - 1);
+            int c = coins[i];
+            ITER_FIX(j, c, N)
+                table[j] += table[j - c];
         }
     }
 
@@ -43,9 +35,10 @@ class Solution
         Solution::initTable();
         //cin >> t;
         int ct = 0;
-        while(/* ct < t */ !cin.eof())
+        int c;
+        while(/* ct < t */ cin >> c)
         {
-            Solution* sl = new Solution(ct++);
+            Solution* sl = new Solution(ct++, c);
             sl->process();
             sl->print();
             delete sl;
@@ -55,13 +48,13 @@ class Solution
 
     private: int ct;
 
-    int c, ret = 0;
+    int c, ret;
 
-    public: Solution(int ct)
+    public: Solution(int ct, int c)
     {
         this->ct = ct;
 
-        cin >> this->c;
+        this->c = c;
     }
 
     void process()
@@ -71,7 +64,7 @@ class Solution
 
     void print()
     {
-        if(this->ret < 2)
+        if(this->ret == 1)
             cout << "There is only 1 way to produce " << this->c << " cents change." << "\n";
         else
             cout << "There are " << this->ret << " ways to produce " << this->c << " cents change." << "\n";
@@ -83,12 +76,10 @@ int Solution::t = 1;
 int Solution::table[N] = { 0 };
 
 #undef int
-#define int int
 int main(int argc, char* argv[])
 {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    cout.tie(NULL);
 
     Solution::init();
 
