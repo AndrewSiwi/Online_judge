@@ -45,14 +45,13 @@ int main(int argc, char* argv[])
             overflows.insert({ i, day++ });
     }
 
-
-    while(!cin.eof())
+    string fromIn;
+    while(cin >> fromIn)
     {
         string ret = "eh?";
 
-        string fromIn;
         string toIn;
-        cin >> fromIn >> toIn;
+        cin >> toIn;
 
         string from[3] = { "" };
         string to[3] = { "" };
