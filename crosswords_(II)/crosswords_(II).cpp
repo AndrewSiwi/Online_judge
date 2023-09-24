@@ -15,6 +15,8 @@ using namespace std;
 
 const int N = 1e0 * 25;
 
+#define CHAR '+'
+
 class Solution
 {
     static int t;
@@ -61,6 +63,9 @@ class Solution
             }
             c = this->cols;
         }
+
+        iter_fix(i, 0, N * 3 + 1)
+            fill(this->ret[i], this->ret[i] + N * 5 + 1, ' ');
     }
 
     void process()
@@ -75,9 +80,25 @@ class Solution
                 if(this->matrix[i][bords[j]] == 1)
                     this->emptiness({ i, bords[j] });
 
-        /* iter_fix(i, 0, this->rows)
+        iter_fix(i, 0, this->rows)
             iter_fix(j, 0, this->cols)
-                buňka = 2*4 a následně mezi buňky (a zároveň na začátek a konec) přidat "+" */
+                if(this->matrix[i][j] > -1)
+                {
+                    iter_fix(k, 0, 6)
+                    {
+                        this->ret[3 * i][j * 5 + k] = CHAR;
+                        this->ret[3 * i + 3][j * 5 + k] = CHAR;
+                    }
+                    this->ret[3 * i + 1][j * 5] = CHAR;
+                    this->ret[3 * i + 2][j * 5] = CHAR;
+                    this->ret[3 * i + 1][j * 5 + 5] = CHAR;
+                    this->ret[3 * i + 2][j * 5 + 5] = CHAR;
+
+                    if(this->matrix[i][j] == 1)
+                        iter_fix(k, 0, 2)
+                            iter_fix(l, 0, 4)
+                                this->ret[3 * i + 1 + k][j * 5 + 1 + l] = CHAR;
+                }
 
     }
 
@@ -107,10 +128,16 @@ class Solution
 
     void print()
     {
-        iter_fix(i, 0, this->rows)
+        iter_fix(i, 0, this->rows * 3 + 1)
         {
-            iter_fix(j, 0, this->cols)
-                cout << this->matrix[i][j] << " ";
+            int last_space = 0;
+            /* iter_reverse(j, this->cols - 1, 0)
+                if(this->matrix[i / 3][j] == -1)
+                    last_space++;
+                else
+                    break; */
+            iter_fix(j, 0, (this->cols - last_space) * 5 + 1)
+                cout << this->ret[i][j];
             cout << "\n";
         }
         cout << "\n";
