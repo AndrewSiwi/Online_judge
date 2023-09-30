@@ -41,7 +41,6 @@ class Solution
     private: int ct;
 
     int rows, cols, matrix[N][N];
-    char ret[N * 3 + 1][N * 5 + 1];
 
     public: Solution(int ct, int rows, int cols)
     {
@@ -81,24 +80,19 @@ class Solution
                     this->emptiness({ i, bords[j] });
 
         iter_fix(i, 0, this->rows)
+            iter_reverse(j, this->cols - 1, 0)
+                if(this->matrix[i][j] != -1)
+                    break;
+                else
+                    this->matrix[i][j] = -2;
+            
+        /* iter_fix(i, 0, this->rows)
+        {
             iter_fix(j, 0, this->cols)
-                if(this->matrix[i][j] > -1)
-                {
-                    iter_fix(k, 0, 6)
-                    {
-                        this->ret[3 * i][j * 5 + k] = CHAR;
-                        this->ret[3 * i + 3][j * 5 + k] = CHAR;
-                    }
-                    this->ret[3 * i + 1][j * 5] = CHAR;
-                    this->ret[3 * i + 2][j * 5] = CHAR;
-                    this->ret[3 * i + 1][j * 5 + 5] = CHAR;
-                    this->ret[3 * i + 2][j * 5 + 5] = CHAR;
-
-                    if(this->matrix[i][j] == 1)
-                        iter_fix(k, 0, 2)
-                            iter_fix(l, 0, 4)
-                                this->ret[3 * i + 1 + k][j * 5 + 1 + l] = CHAR;
-                }
+                cout << this->matrix[i][j];
+            cout << "\n";
+        }
+        cout << "\n"; */
 
     }
 
@@ -128,19 +122,25 @@ class Solution
 
     void print()
     {
-        iter_fix(i, 0, this->rows * 3 + 1)
-        {
-            int last_space = 0;
-            /* iter_reverse(j, this->cols - 1, 0)
-                if(this->matrix[i / 3][j] == -1)
-                    last_space++;
-                else
-                    break; */
-            iter_fix(j, 0, (this->cols - last_space) * 5 + 1)
-                cout << this->ret[i][j];
-            cout << "\n";
-        }
-        cout << "\n";
+        iter_fix(i, 0, this->rows)
+            iter_fix(j, 0, this->cols)
+                if(this->matrix[i][j] > -1)
+                {
+                    /* iter_fix(k, 0, 6)
+                    {
+                        this->ret[3 * i][j * 5 + k] = CHAR;
+                        this->ret[3 * i + 3][j * 5 + k] = CHAR;
+                    }
+                    this->ret[3 * i + 1][j * 5] = CHAR;
+                    this->ret[3 * i + 2][j * 5] = CHAR;
+                    this->ret[3 * i + 1][j * 5 + 5] = CHAR;
+                    this->ret[3 * i + 2][j * 5 + 5] = CHAR;
+
+                    if(this->matrix[i][j] == 1)
+                        iter_fix(k, 0, 2)
+                            iter_fix(l, 0, 4)
+                                this->ret[3 * i + 1 + k][j * 5 + 1 + l] = CHAR; */
+                }
         //cout << "\n";
     }
 };
